@@ -10,10 +10,8 @@ library MerkleAccessLib {
     }
 
     function verifyProof(bytes32[] calldata proof, bytes32 rootHash, address prover) internal pure returns (bool) {
-        //startTime = block.timestamp;
-        // this above is wrong since everytime the function is called startime is reset.
-
+        
         bytes32 leaf = addressToLeaf(prover);
         return MerkleProof.verify(proof, rootHash, leaf);
     }
-}
+} 

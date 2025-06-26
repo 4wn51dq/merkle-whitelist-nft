@@ -1,3 +1,15 @@
+#### initiation
+- created a merkle-access library to verify merkle proofs of members
+- and a contract to approve a caller to claim access (by proving through the root hash) to a (yet) undefined function.
+- why merkle proof instead of directly storing all members on chain? because storing on chain is expensive.
+- the proof is a bytes32 array that holds the path from the leaf (msg.sender if true) to the rootHash
+- the root hash is set by the owner/ contract deployer
+- the owner has to get a new root everytime the whitelist changes through off chain interactions. 
+
+
+
+
+
 ## Foundry
 
 **Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**

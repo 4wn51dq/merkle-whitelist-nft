@@ -4,7 +4,14 @@
 - why merkle proof instead of directly storing all members on chain? because storing on chain is expensive.
 - the proof is a bytes32 array that holds the path from the leaf (msg.sender if true) to the rootHash
 - the root hash is set by the owner/ contract deployer
-- the owner has to get a new root everytime the whitelist changes through off chain interactions. 
+- the owner has to get a new root everytime the whitelist changes through off chain interactions.
+
+#### what more? 
+- added another feature to the project, any approved member of the whitelist can swap USDC (ERC20) for eth through TokenRedemption.sol swap contract
+- they get eth in return of their ERC20 token
+- created a simple swap contract instead of routing to uniswap v2/v3 for exchange of tokens
+- the users get eth and now this eth is what they will use for minting their own NFTs
+- soon they will launch an auction of these NFTs 
 
 
 

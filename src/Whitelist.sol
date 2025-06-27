@@ -10,7 +10,7 @@ contract ApproveWhitelistMember {
     
     using MerkleAccessLib for bytes32[];
 
-    address public owner;
+    address public immutable owner;
     bytes32 private rootHash;
     uint256 public accessWindowTime;
 
@@ -45,6 +45,10 @@ contract ApproveWhitelistMember {
 
         hasAccess[msg.sender] = true;
     }    
+
+    function getOwner() external view returns (address) {
+        return owner;
+    }
 }
 
 

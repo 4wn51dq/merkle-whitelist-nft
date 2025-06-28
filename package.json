@@ -1,0 +1,28 @@
+{
+  "name": "merkle-tree-whitelist",
+  "version": "1.0.0",
+  "description": "- created a merkle-access library to verify merkle proofs of members - and a contract to approve a caller to claim access (by proving through the root hash) to a (yet) undefined function. - why merkle proof instead of directly storing all members on chain? because storing on chain is expensive. - the proof is a bytes32 array that holds the path from the leaf (msg.sender if true) to the rootHash - the root hash is set by the owner/ contract deployer - the owner has to get a new root everytime the whitelist changes through off chain interactions.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4wn51dq/merkle-whitelist-nft.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/4wn51dq/merkle-whitelist-nft/issues"
+  },
+  "homepage": "https://github.com/4wn51dq/merkle-whitelist-nft#readme",
+  "dependencies": {
+    "keccak256": "^1.0.6",
+    "merkletreejs": "^0.5.2"
+  }
+}

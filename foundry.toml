@@ -2,5 +2,8 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+ffi = true
+# ffi(foreing function interfaces) was enabled
+# this allows forge script to call shell cmnds so you can run JS py or bash script and read its output directly into solidity.
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

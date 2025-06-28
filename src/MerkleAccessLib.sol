@@ -5,6 +5,8 @@ import {MerkleProof} from "../lib/openzeppelin-contracts/contracts/utils/cryptog
 
 library MerkleAccessLib {
 
+
+    // compute the leaf node for any address
     function addressToLeaf(address prover) internal pure returns (bytes32) {
        return keccak256(abi.encodePacked(prover));
     }
@@ -14,4 +16,9 @@ library MerkleAccessLib {
         bytes32 leaf = addressToLeaf(prover);
         return MerkleProof.verify(proof, rootHash, leaf);
     }
+    // this function uses the MerkleProof library to verify the proof
+    // the merkle proof library does this on chain!! 
+    // the verify() function in the MerkleProof library uses processProof() function in it to do the computations
+    // these computations are done on-chain directly on the evm
+    // this means gas is spent on the verification process
 } 

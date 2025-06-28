@@ -24,6 +24,7 @@ contract ApprovedSwapAndMint is ERC721URIStorage {
         owner = msg.sender;
         tokenID= 0;
     }
+    
     modifier onlyWhitelisted() {
         require(ApproveWhitelistMember(owner).hasAccess(msg.sender), "Not approved");
         // use the contract address to typecast owner address so owner behaves like the contract
@@ -39,11 +40,13 @@ contract ApprovedSwapAndMint is ERC721URIStorage {
         require (tokenAmount>0);
 
         acceptedToken.transferFrom(msg.sender, address(this), tokenAmount);
+        // transfer the token from the user to this contract
+        // this function 
 
-        (, int price,,,) = priceFeed.latestRoundData();
+        (, int eth_usdPriceFeed,,,) = priceFeed.latestRoundData();
 
         uint256 ethAmount;
-        ethAmount = (tokenAmount*1e10)/(uint256(price));
+        ethAmount = (tokenAmount*1e10)/(uint256(eth_usdPriceFeed));
 
         require(address(this).balance >= ethAmount);
         payable(msg.sender).transfer(ethAmount);

@@ -13,6 +13,19 @@
 - the users get eth and now this eth is what they will use for minting their own NFTs
 - soon they will launch an auction of these NFTs 
 
+#### 3rd commit
+- a full merkle tree on chain storage would be expensive
+- so i built an off chains cript for generating merkle root and getting the merkle root
+- this merkle root will be called from merkle.json via ffi (foreign function interface) call during deployment
+- (ffi allows forge script to call shell commands so you can run a JS, py, or bash scirpt from inside your forge sciprt/test and read its output directly into solidity)
+- the json file acts like a bridge between off chain data/logic and on chain deployment/verification
+- now when the approving contract (whitelist.sol) is deployed its constructor will set off the merkle root once and for all
+- however
+- what i intended initially was to make an editable whitelist (which still is off chain data) 
+- since this happens off chain i wanted the contract to simultaneously take in the off chain generated root hash
+- 
+- creating a separate function (setNewRoot) in the contract for the owner to set root always the list changes is hectic for the owner/ deployer
+
 
 
 

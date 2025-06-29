@@ -4,10 +4,14 @@ pragma solidity ^0.8.20;
 import { Script } from "forge-std/Script.sol";
 import { ApproveWhitelistMember } from "../src/Whitelist.sol";
 import { ApprovedSwapAndMint } from "../src/TokenRedemption.sol";
+import { HelperConfig } from "./HelperConfig.s.sol";
 
 contract Deploy is Script {
+
     function run() external returns (ApproveWhitelistMember, ApprovedSwapAndMint, bytes32) {
         
+        vm.deal(payable(msg.sender), 10 ether); // Give the deployer some ether to pay for gas
+
         // run the JS generator script to produce updated merkle.json
         string[] memory genInputs = new string[](2); // generated inputs
         genInputs[0] = "node";
@@ -28,10 +32,17 @@ contract Deploy is Script {
             merkleRoot := mload(add(output, 32))
         }
 
+        HelperConfig helperConfig = new HelperConfig();
+        (address priceFeed, address acceptedToken) = helperConfig.activeNetworkConfig();
+
         vm.startBroadcast();
 
         ApproveWhitelistMember approval = new ApproveWhitelistMember(merkleRoot);
-        ApprovedSwapAndMint swapAndMint = new ApprovedSwapAndMint();
+        ApprovedSwapAndMint swapAndMint = new ApprovedSwapAndMint(
+            priceFeed,
+            acceptedToken
+        );
+        merkleRoot;
 
         vm.stopBroadcast();
 

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.30;
 
 import {AggregatorV3Interface} from "../lib/chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-import {IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol"; 
+import {ERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol"; 
 import {ApproveWhitelistMember} from "./Whitelist.sol";
 import {ERC721, ERC721URIStorage} from "../lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol"; 
 
@@ -10,8 +10,8 @@ import {ERC721, ERC721URIStorage} from "../lib/openzeppelin-contracts/contracts/
 contract ApprovedSwapAndMint is ERC721URIStorage {
     // this contract allows whitelisted members to swap USDC for ETH and mint NFTs
 
-    AggregatorV3Interface public constant priceFeed = AggregatorV3Interface(0x986b5E1e1755e3C2440e960477f25201B0a8bbD4);
-    IERC20 public constant acceptedToken = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+    AggregatorV3Interface private s_priceFeed;
+    ERC20 private s_acceptedToken;
     // this above is the contract address
     // the above syntax is used to typecast the contract address to the interface type
     event Swapped(address indexed user, uint tokenIn, uint ethOut);
@@ -20,9 +20,11 @@ contract ApprovedSwapAndMint is ERC721URIStorage {
 
     address public immutable owner; // = approveWhitelistMember.getOwner();
 
-    constructor() ERC721("MembersNFT", "WHITNFT") {
+    constructor(address priceFeed, address acceptedToken) ERC721("MembersNFT", "WHITNFT") {
         owner = msg.sender;
         tokenID= 0;
+        s_priceFeed = AggregatorV3Interface(priceFeed);
+        s_acceptedToken = ERC20(acceptedToken);
     }
     
     modifier onlyWhitelisted() {
@@ -35,15 +37,15 @@ contract ApprovedSwapAndMint is ERC721URIStorage {
     uint256 public MAX_NFT_MINT_COST;
 
     function swap(uint256 tokenAmount) external onlyWhitelisted returns (uint256) {
-        require(address(acceptedToken) != address(0), "Accepted token not set");
-        require(address(priceFeed) != address(0), "Price feed not set");
+        require(address(s_acceptedToken) != address(0), "Accepted token not set");
+        require(address(s_priceFeed) != address(0), "Price feed not set");
         require (tokenAmount>0);
 
-        acceptedToken.transferFrom(msg.sender, address(this), tokenAmount);
+        s_acceptedToken.transferFrom(msg.sender, address(this), tokenAmount);
         // transfer the token from the user to this contract
         // this function 
 
-        (, int eth_usdPriceFeed,,,) = priceFeed.latestRoundData();
+        (, int eth_usdPriceFeed,,,) = s_priceFeed.latestRoundData();
 
         uint256 ethAmount;
         ethAmount = (tokenAmount*1e10)/(uint256(eth_usdPriceFeed));

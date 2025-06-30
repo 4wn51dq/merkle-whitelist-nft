@@ -3,12 +3,12 @@ pragma solidity ^0.8.20;
 
 import { Script } from "forge-std/Script.sol";
 import { ApproveWhitelistMember } from "../src/Whitelist.sol";
-import { ApprovedSwapAndMint } from "../src/TokenRedemption.sol";
+import { SwapAndMint } from "../src/TokenRedemption.sol";
 import { HelperConfig } from "./HelperConfig.s.sol";
 
 contract Deploy is Script {
 
-    function run() external returns (ApproveWhitelistMember, ApprovedSwapAndMint, bytes32) {
+    function run() external returns (ApproveWhitelistMember, SwapAndMint, bytes32) {
         
         vm.deal(payable(msg.sender), 10 ether); // Give the deployer some ether to pay for gas
 
@@ -38,7 +38,7 @@ contract Deploy is Script {
         vm.startBroadcast();
 
         ApproveWhitelistMember approval = new ApproveWhitelistMember(merkleRoot);
-        ApprovedSwapAndMint swapAndMint = new ApprovedSwapAndMint(
+        SwapAndMint swapAndMint = new SwapAndMint(
             priceFeed,
             acceptedToken
         );

@@ -7,14 +7,14 @@ import {ApproveWhitelistMember} from "./Whitelist.sol";
 import {ERC721, ERC721URIStorage} from "../lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol"; 
 
 
-contract ApprovedSwapAndMint is ERC721URIStorage {
-    // this contract allows whitelisted members to swap USDC for ETH and mint NFTs
+contract SwapAndMint is ERC721URIStorage {
+    // this contract allows whitelisted members to swap USDC(if not on local chain) for ETH and mint NFTs
 
     AggregatorV3Interface private s_priceFeed;
     ERC20 private s_acceptedToken;
-    // this above is the contract address
-    // the above syntax is used to typecast the contract address to the interface type
+    
     event Swapped(address indexed user, uint tokenIn, uint ethOut);
+    event NFTMinted(address indexed user, uint tokenId, string tokenURI);
 
     // ApproveWhitelistMember public approveWhitelistMember = ApproveWhitelistMember();
 
@@ -75,6 +75,8 @@ contract ApprovedSwapAndMint is ERC721URIStorage {
         tokenID++;
 
         hasMinted[msg.sender] = true;
+
+        emit NFTMinted(msg.sender, tokenID, tokenURI);
     }
 
     receive() external payable {}

@@ -6,7 +6,7 @@ import { ApproveWhitelistMember } from "../src/Whitelist.sol";
 import { SwapAndMint } from "../src/TokenRedemption.sol";
 import { HelperConfig } from "./HelperConfig.s.sol";
 
-contract Deploy is Script {
+contract DeployContract is Script {
 
     function run() external returns (ApproveWhitelistMember, SwapAndMint, bytes32) {
         

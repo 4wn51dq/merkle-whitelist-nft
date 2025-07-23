@@ -23,6 +23,7 @@ contract SwapAndMint is ERC721URIStorage {
 
     AggregatorV3Interface private s_priceFeed;
     ERC20 private s_acceptedToken;
+    uint256 public constant SWAP_FEE = 3; /** 3 percent for example */
     
     event Swapped(address indexed user, uint tokenIn, uint ethOut);
     event NFTMinted(address indexed user, uint tokenId, string tokenURI);
@@ -88,6 +89,8 @@ contract SwapAndMint is ERC721URIStorage {
 
 
 
+
+
     uint256 public tokenID;
 
     mapping (address => bool) public hasMinted;
@@ -119,5 +122,47 @@ contract SwapAndMint is ERC721URIStorage {
 contract MembersNFT is ERC721 {
     constructor() ERC721("MembersNFT", "WMNFT"){
 
+    }
+}
+
+contract GetLoanByCollateral {
+
+    address public owner;
+    uint256 public immutable i_minimumCollateralByPercent; /** 30% for example */
+
+    mapping (address => uint256) totalBorrowed;
+    mapping (address => uint256) totalCollateral;
+
+    constructor(uint256 minimumCollateral) {
+        owner = msg.sender;
+        i_minimumCollateralByPercent = minimumCollateral;
+    }
+
+    function borrowMoney(uint256 amount) external payable{
+        require(ApproveWhitelistMember(owner).hasAccess(msg.sender), "must be approved member");
+        require(msg.value>= (amount*i_minimumCollateralByPercent)/100);
+        require(address(this).balance>= amount);
+
+        totalCollateral[msg.sender]+= msg.value;
+        totalBorrowed[msg.sender]+= amount;
+
+        (bool deposited, ) = payable(msg.sender).call{value: amount}("");
+        require(deposited, "deposit failed");
+    }
+
+    function repayLoan(uint256 amount) external payable{
+        require(ApproveWhitelistMember(owner).hasAccess(msg.sender), "must be approved member");
+        require(amount<= totalBorrowed[msg.sender], "trying to repay extra money");
+        require(msg.sender.balance>= amount);
+        require(msg.value == amount);
+
+        uint256 returnCollateral = (amount*i_minimumCollateralByPercent)/100;
+
+        totalBorrowed[msg.sender]-=amount;
+        totalCollateral[msg.sender]-= returnCollateral;
+
+
+        (bool collateralReturned, ) = payable(msg.sender).call{value: returnCollateral}("");
+        require(collateralReturned, "failure");
     }
 }

@@ -3,11 +3,12 @@ pragma solidity ^0.8.30;
 
 import {AggregatorV3Interface} from "../lib/chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import {ERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol"; 
+import {IERC20} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC20.sol";
 import {ApproveWhitelistMember} from "./Whitelist.sol";
 import {ERC721, ERC721URIStorage} from "../lib/openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol"; 
 
 
-interface IUniswapV2Router02 {
+interface IUniswapV2Router {
     function swapExactTokensForETH(
         uint256 amountIn,
         uint256 amountOutMin,
@@ -15,6 +16,8 @@ interface IUniswapV2Router02 {
         address to,
         uint256 deadline
     ) external returns (uint256[] memory inputs);
+
+    function getAmountsOut(uint256 amountOutMin, address[] calldata path) external view returns (uint256[] memory amounts);
 }
 
 
@@ -24,6 +27,9 @@ contract SwapAndMint is ERC721URIStorage {
     AggregatorV3Interface private s_priceFeed;
     ERC20 private s_acceptedToken;
     uint256 public constant SWAP_FEE = 3; /** 3 percent for example */
+    address private constant UNISWAP_V2_ROUTER= 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address private immutable WETH;
+    uint256 public immutable i_deadline;
     
     event Swapped(address indexed user, uint tokenIn, uint ethOut);
     event NFTMinted(address indexed user, uint tokenId, string tokenURI);
@@ -38,11 +44,13 @@ contract SwapAndMint is ERC721URIStorage {
     * but each token 
     */
 
-    constructor(address priceFeed, address acceptedToken) ERC721("MembersNFT", "WHITNFT") {
+    constructor(address priceFeed, address acceptedToken, address _networkWETHAddress) ERC721("MembersNFT", "WHITNFT") {
         owner = msg.sender;
         tokenID= 0;
         s_priceFeed = AggregatorV3Interface(priceFeed);
         s_acceptedToken = ERC20(acceptedToken);
+
+        WETH = _networkWETHAddress;
     }
     
     modifier onlyWhitelisted() {
@@ -61,7 +69,7 @@ contract SwapAndMint is ERC721URIStorage {
      * to return ETH.
      */
 
-    /** 
+    
     function swap(uint256 tokenAmount) external onlyWhitelisted returns (uint256) {
         require(address(s_acceptedToken) != address(0), "Accepted token not set");
         require(address(s_priceFeed) != address(0), "Price feed not set");
@@ -85,11 +93,25 @@ contract SwapAndMint is ERC721URIStorage {
         return MAX_NFT_MINT_COST;
         // this returns the amount of ETH user can use to mint NFTs in NFTMint.sol
     }
-    */
 
+    
 
+    function swapTokensViaUniswap(uint256 usdcAmount, uint256 minEthOut) external onlyWhitelisted {
+        require(IERC20(s_acceptedToken).transferFrom(msg.sender, address(this), usdcAmount));
+        require(IERC20(s_acceptedToken).approve(UNISWAP_V2_ROUTER, usdcAmount));
 
+        address[] memory path;
+        path[0] = address(s_acceptedToken);
+        path[1] = WETH;
 
+        IUniswapV2Router(UNISWAP_V2_ROUTER).swapExactTokensForETH(
+            usdcAmount,
+            minEthOut,
+            path,
+            msg.sender,
+            block.timestamp + i_deadline
+        );
+    }
 
     uint256 public tokenID;
 
